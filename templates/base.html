@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Viewer</title>
+</head>
+<body>
+    <h1>HTML Viewer</h1>
+    <p>Carica i tuoi file HTML nella cartella <strong>html_files</strong>. I seguenti file sono supportati:</p>
+    <ul>
+        <li>index.html</li>
+        <li>attivita.html</li>
+        <li>area_docenti.html</li>
+        <li>risultati.html</li>
+        <li>vita_scolastica.html</li>
+    </ul>
+    <h2>File Disponibili:</h2>
+    <ul>
+        {% for file in html_files %}
+        <li><a href="/view/{{ file }}">{{ file }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risultati</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .navbar { background-color: #3a3a3a; padding: 10px; }
+        .navbar a { color: white; margin-right: 15px; text-decoration: none; }
+        .sub-navbar { background-color: #e0e0e0; padding: 5px; display: flex; gap: 15px; }
+        .sub-navbar a { color: #333; text-decoration: none; font-size: 14px; }
+        .filter-container { margin: 10px; display: flex; gap: 10px; align-items: center; }
+        .filter-container select, .filter-container input { padding: 5px; font-size: 14px; }
+        .student-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .student-table th, .student-table td { border: 1px solid #ccc; text-align: center; padding: 8px; }
+        .student-table th { background-color: #e0e0e0; cursor: pointer; }
+        .red { color: red; }
+        .black { color: black; }
+    </style>
+    <script>
+        const studentData = {
+            "3-media": ["Stellina Dematteis", "Tartaruga Dematteis", "Yucky Benua", "Lollo Benua", "Leonard Benua",
+                        "Sparcky Benua", "Flaffy Dematteis", "Tina Dematteis", "Grigetta Benua", "Luna Dematteis",
+                        "Luna Benua", "Kendy Dematteis", "Papero Benua", "Curt Dematteis", "Briciola Dematteis", 
+                        "Lampo Benua", "Sunny Benua", "Attiglio Dematteis", "Pandino Dematteis"],
+            "1-superiore": ["Cane Dematteis", "Cane Benua", "Mician Dematteis", "Cicciobello Allabue", "Micheal Temperini",
+                            "Cattivo Temperini", "Bambola Rossetti", "Teschio Carottini", "Robottina Carottini"]
+        };
+
+        let evaluations = JSON.parse(localStorage.getItem("evaluations")) || {};
+        let grades = JSON.parse(localStorage.getItem("grades")) || {};
+        let currentQuadrimestre = "1"; // Default al 1° quadrimestre
+
+        function saveSelections() {
+            const selectedClass = document.getElementById("classSelect").value;
+            const selectedMateria = document.getElementById("materiaSelect").value;
+            localStorage.setItem("selectedClass", selectedClass);
+            localStorage.setItem("selectedMateria", selectedMateria);
+            generateStudentTable(selectedClass, selectedMateria);
+        }
+
+        function changeQuadrimestre(quadrimestre) {
+            currentQuadrimestre = quadrimestre;
+            saveSelections();
+        }
+
+        function loadSelections() {
+            const savedClass = localStorage.getItem("selectedClass");
+            const savedMateria = localStorage.getItem("selectedMateria");
+
+            if (savedClass) {
+                document.getElementById("classSelect").value = savedClass;
+            }
+            if (savedMateria) {
+                document.getElementById("materiaSelect").value = savedMateria;
+            }
+
+            if (savedClass && savedMateria) {
+                generateStudentTable(savedClass, savedMateria);
+            }
+        }
+
+        function generateStudentTable(selectedClass, selectedMateria) {
+            const studentNames = studentData[selectedClass] || [];
+            const tableHead = document.getElementById("studentTableHead");
+            const tableBody = document.getElementById("studentTableBody");
+            tableHead.innerHTML = "<tr><th>Nome Studente</th></tr>";
+            tableBody.innerHTML = "";
+
+            const materiaEvaluations = evaluations[currentQuadrimestre]?.[selectedClass]?.[selectedMateria] || [];
+            materiaEvaluations.forEach((evaluation, evalIndex) => {
+                const th = document.createElement("th");
+                th.textContent = evaluation.date;
+                th.onclick = () => showEvaluationDetails(selectedClass, selectedMateria, evalIndex);
+                tableHead.firstChild.appendChild(th);
+            });
+
+            studentNames.forEach((name, studentIndex) => {
+                const row = document.createElement("tr");
+                const nameCell = document.createElement("td");
+                nameCell.textContent = name;
+                row.appendChild(nameCell);
+
+                materiaEvaluations.forEach((evaluation, evaluationIndex) => {
+                    const gradeCell = document.createElement("td");
+                    const studentKey = `${currentQuadrimestre}-${selectedClass}-${selectedMateria}-${studentIndex}-${evaluationIndex}`;
+                    gradeCell.contentEditable = true;
+                    gradeCell.textContent = grades[studentKey] || "";
+                    formatGradeCell(gradeCell);
+                    gradeCell.oninput = () => {
+                        grades[studentKey] = gradeCell.textContent.trim();
+                        localStorage.setItem("grades", JSON.stringify(grades));
+                        formatGradeCell(gradeCell);
+                    };
+                    gradeCell.onkeydown = (e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            grades[studentKey] = gradeCell.textContent.trim();
+                            localStorage.setItem("grades", JSON.stringify(grades));
+                            formatGradeCell(gradeCell);
+                        }
+                    };
+                    row.appendChild(gradeCell);
+                });
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        function formatGradeCell(cell) {
+            const grade = cell.textContent.trim();
+            if (grade.toLowerCase() === "eson" || grade.toLowerCase() === "ass") {
+                cell.className = "black";
+            } else if (!isNaN(grade)) {
+                const numericGrade = parseInt(grade, 10);
+                cell.className = numericGrade >= 60 ? "black" : "red";
+            }
+        }
+
+        function createEvaluation() {
+            const selectedClass = document.getElementById("classSelect").value;
+            const selectedMateria = document.getElementById("materiaSelect").value;
+            const description = prompt("Inserisci la descrizione della valutazione:");
+            const date = prompt("Inserisci la data (formato: gg/mm/aaaa):");
+
+            if (!description || !date) return alert("Descrizione o data non valida.");
+
+            if (!evaluations[currentQuadrimestre]) evaluations[currentQuadrimestre] = {};
+            if (!evaluations[currentQuadrimestre][selectedClass]) evaluations[currentQuadrimestre][selectedClass] = {};
+            if (!evaluations[currentQuadrimestre][selectedClass][selectedMateria]) {
+                evaluations[currentQuadrimestre][selectedClass][selectedMateria] = [];
+            }
+
+            evaluations[currentQuadrimestre][selectedClass][selectedMateria].push({ description, date });
+            localStorage.setItem("evaluations", JSON.stringify(evaluations));
+
+            generateStudentTable(selectedClass, selectedMateria);
+        }
+
+        window.onload = function() {
+            loadSelections();
+            document.getElementById("classSelect").addEventListener("change", saveSelections);
+            document.getElementById("materiaSelect").addEventListener("change", saveSelections);
+        }
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <a href="attivita.html">Attività</a>
+        <a href="risultati.html">Risultati</a>
+        <a href="vita_scolastica.html">Vita scolastica</a>
+        <a href="didattica.html">Didattica</a>
+        <a href="in_azienda.html">In azienda</a>
+        <a href="corsi.html">Corsi</a>
+        <a href="studenti.html">Studenti</a>
+        <a href="comunicazione.html">Comunicazione</a>
+        <a href="informazioni_personali.html">Informazioni personali</a>
+        <a href="registro.html" style="float: right; color: white;">Esci</a> <!-- Link Esci -->
+    </div>
+
+    <div class="sub-navbar">
+        <a href="#">Ultimi voti</a>
+        <a href="#">Libretto dei voti</a>
+        <a href="#">Pagella</a>
+        <a href="#">Pagella pluriennale</a>
+        <a href="#">Riepilogo</a>
+        <a href="#">Valutazioni delle competenze</a>
+        <a href="#">Libretto delle competenze</a>
+    </div>
+
+    <div class="filter-container">
+        <select id="quadrimestreSelect" onchange="changeQuadrimestre(this.value)">
+            <option value="1">1° Quadrimestre</option>
+            <option value="2">2° Quadrimestre</option>
+        </select>
+        <select id="classSelect">
+            <option value="3-media">3 Media</option>
+            <option value="1-superiore">1 Superiore</option>
+        </select>
+        <select id="materiaSelect">
+            <option value="Italiano">Italiano</option>
+            <option value="Matematica">Matematica</option>
+            <option value="Scienze">Scienze</option>
+            <option value="Geografia">Geografia</option>
+            <option value="Storia">Storia</option>
+            <option value="Ginnastica">Ginnastica</option>
+            <option value="Arte">Arte</option>
+            <option value="Disegno">Disegno</option>
+            <option value="Informatica">Informatica</option>
+            <option value="Musica">Musica</option>
+            <option value="Recupero approfondimento">Recupero approfondimento</option>
+        </select>
+        <button onclick="createEvaluation()">Crea Valutazione</button>
+    </div>
+
+    <table class="student-table">
+        <thead id="studentTableHead">
+            <tr><th>Nome Studente</th></tr>
+        </thead>
+        <tbody id="studentTableBody"></tbody>
+    </table>
+</body>
+</html>

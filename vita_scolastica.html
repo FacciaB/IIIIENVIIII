@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vita Scolastica</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .navbar { background-color: #3a3a3a; padding: 10px; }
+        .navbar a { color: white; margin-right: 15px; text-decoration: none; }
+        .filter-container { margin: 10px; display: flex; gap: 10px; align-items: center; }
+        .filter-container select { padding: 5px; font-size: 14px; }
+        .student-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .student-table th, .student-table td { border: 1px solid #ccc; text-align: center; padding: 8px; }
+        .student-table th { background-color: #e0e0e0; }
+        .green { background-color: green; color: white; cursor: pointer; }
+        .red { background-color: red; color: white; cursor: pointer; }
+        .yellow { background-color: yellow; cursor: pointer; }
+    </style>
+    <script>
+        const studentData = {
+            "3-media": ["Stellina Dematteis", "Tartaruga Dematteis", "Yucky Benua", "Lollo Benua", "Leonard Benua",
+                        "Sparcky Benua", "Flaffy Dematteis", "Tina Dematteis", "Grigetta Benua", "Luna Dematteis",
+                        "Luna Benua", "Kendy Dematteis", "Papero Benua", "Curt Dematteis", "Briciola Dematteis", 
+                        "Lampo Benua", "Sunny Benua", "Attiglio Dematteis"],
+            "1-superiore": ["Cane Dematteis", "Cane Benua", "Mician Dematteis", "Cicciobello Allabue", "Micheal Temperini",
+                            "Cattivo Temperini", "Bambola Rossetti", "Teschio Carottini"]
+        };
+        
+        let attendanceData = JSON.parse(localStorage.getItem("attendanceData")) || {};
+
+        function saveSelections() {
+            const selectedClass = document.getElementById("classSelect").value;
+            localStorage.setItem("selectedClass", selectedClass);
+            generateStudentTable(selectedClass);
+        }
+
+        function loadSelections() {
+            const savedClass = localStorage.getItem("selectedClass");
+
+            if (savedClass) {
+                document.getElementById("classSelect").value = savedClass;
+                generateStudentTable(savedClass);
+            }
+        }
+
+        function generateStudentTable(selectedClass) {
+            const studentNames = studentData[selectedClass] || [];
+            const tableBody = document.getElementById("studentTableBody");
+            tableBody.innerHTML = "";
+
+            studentNames.forEach((name, index) => {
+                const row = document.createElement("tr");
+
+                const nameCell = document.createElement("td");
+                nameCell.textContent = name;
+                row.appendChild(nameCell);
+
+                // Assenze Totali
+                const absenceCell = document.createElement("td");
+                absenceCell.className = "red";
+                absenceCell.textContent = "Assente";
+                absenceCell.onclick = () => updateAttendance(index, selectedClass, "Assente");
+                row.appendChild(absenceCell);
+
+                // Ritardi Totali
+                const lateCell = document.createElement("td");
+                lateCell.className = "yellow";
+                lateCell.textContent = "Ritardo";
+                lateCell.onclick = () => updateAttendance(index, selectedClass, "Ritardo");
+                row.appendChild(lateCell);
+
+                // Totali
+                const absenceTotalCell = document.createElement("td");
+                absenceTotalCell.textContent = attendanceData[selectedClass]?.[name]?.totalAbsences || 0;
+                row.appendChild(absenceTotalCell);
+
+                const lateTotalCell = document.createElement("td");
+                lateTotalCell.textContent = attendanceData[selectedClass]?.[name]?.totalLates || 0;
+                row.appendChild(lateTotalCell);
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateAttendance(studentIndex, selectedClass, status) {
+            const studentNames = studentData[selectedClass] || [];
+            const studentName = studentNames[studentIndex];
+
+            if (!attendanceData[selectedClass]) attendanceData[selectedClass] = {};
+            if (!attendanceData[selectedClass][studentName]) {
+                attendanceData[selectedClass][studentName] = {
+                    totalAbsences: 0,
+                    totalLates: 0
+                };
+            }
+
+            switch (status) {
+                case "Assente":
+                    attendanceData[selectedClass][studentName].totalAbsences++;
+                    break;
+                case "Ritardo":
+                    attendanceData[selectedClass][studentName].totalLates++;
+                    break;
+            }
+
+            localStorage.setItem("attendanceData", JSON.stringify(attendanceData));
+            generateStudentTable(selectedClass);
+        }
+
+        window.onload = function() {
+            loadSelections();
+            document.getElementById("classSelect").addEventListener("change", saveSelections);
+        }
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <a href="attivita.html">Attività</a>
+        <a href="risultati.html">Risultati</a>
+        <a href="vita_scolastica.html">Vita scolastica</a>
+        <a href="didattica.html">Didattica</a>
+        <a href="in_azienda.html">In azienda</a>
+        <a href="corsi.html">Corsi</a>
+        <a href="studenti.html">Studenti</a>
+        <a href="comunicazione.html">Comunicazione</a>
+        <a href="informazioni_personali.html">Informazioni personali</a>
+		<a href="registro.html" style="float: right; color: white;">Esci</a> <!-- Link Esci -->
+    </div>
+
+    <div class="filter-container">
+        <select id="classSelect">
+            <option value="3-media">3 Media</option>
+            <option value="1-superiore">1 Superiore</option>
+        </select>
+    </div>
+
+    <table class="student-table">
+        <thead>
+            <tr>
+                <th>Nome Studente</th>
+                <th>Assenze Totali</th>
+                <th>Ritardi Totali</th>
+                <th>Assente</th>
+                <th>Ritardo</th>
+            </tr>
+        </thead>
+        <tbody id="studentTableBody"></tbody>
+    </table>
+</body>
+</html>

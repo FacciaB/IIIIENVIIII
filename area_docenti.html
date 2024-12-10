@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area Docenti</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            background-color: #f4f4f4;
+        }
+        .menu {
+            background: #800040;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .menu h1 {
+            margin: 0;
+        }
+        .options {
+            margin: 20px;
+            text-align: left;
+        }
+        .options a {
+            display: block;
+            padding: 10px;
+            background: #ddd;
+            margin: 5px 0;
+            text-decoration: none;
+            color: black;
+            border-radius: 5px;
+        }
+        .options a:hover {
+            background: #bbb;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <h1>Area Docenti - <span id="username"></span></h1>
+    </div>
+    <div class="options">
+        <a href="attivita.html">Attività</a>
+        <a href="risultati.html">Risultati</a>
+        <a href="vita_scolastica.html">Vita scolastica</a>
+        <a href="didattica.html">Didattica</a>
+        <a href="azienda.html">In azienda</a>
+        <a href="sondaggi.html">Informazioni e sondaggi</a>
+        <a href="personali.html">Informazioni personali</a>
+    </div>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const user = params.get('user');
+        document.getElementById('username').textContent = user;
+    </script>
+</body>
+</html>

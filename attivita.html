@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attività</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #800040;
+            text-align: center;
+        }
+        .calendar-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .table-container {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        .add-activity {
+            margin: 20px 0;
+        }
+        .add-activity input, .add-activity select, .add-activity button {
+            margin: 5px;
+            padding: 8px;
+        }
+        button {
+            background-color: #800040;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #a00050;
+        }
+    </style>
+</head>
+    <div class="options">
+        <a href="attivita.html">Attività</a>
+        <a href="risultati.html">Risultati</a>
+        <a href="vita_scolastica.html">Vita scolastica</a>
+        <a href="didattica.html">Didattica</a>
+        <a href="azienda.html">In azienda</a>
+        <a href="sondaggi.html">Informazioni e sondaggi</a>
+        <a href="personali.html">Informazioni personali</a>
+    </div>
+<body>
+    <h1>Attività - Gestione Orario</h1>
+    
+    <div class="calendar-container">
+        <label for="selected-day">Seleziona un giorno:</label>
+        <input type="date" id="selected-day" onchange="aggiornaTabella()">
+    </div>
+
+    <div class="add-activity">
+        <h3>Aggiungi una materia</h3>
+        <input type="text" id="materia" placeholder="Materia">
+        <input type="time" id="dalle" placeholder="Dalle">
+        <input type="time" id="alle" placeholder="Alle">
+        <input type="text" id="classe" placeholder="Classe">
+        <button onclick="aggiungiMateria()">Aggiungi</button>
+    </div>
+
+    <div class="table-container">
+        <h3>Orario</h3>
+        <table id="schedule-table">
+            <thead>
+                <tr>
+                    <th>Giorno</th>
+                    <th>Materia</th>
+                    <th>Dalle</th>
+                    <th>Alle</th>
+                    <th>Classe</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Attività aggiunte compariranno qui -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const scheduleTable = document.getElementById('schedule-table').querySelector('tbody');
+        const selectedDayInput = document.getElementById('selected-day');
+
+        // Carica i dati salvati al caricamento della pagina
+        document.addEventListener('DOMContentLoaded', () => {
+            aggiornaTabella();
+        });
+
+        function aggiungiMateria() {
+            const giorno = selectedDayInput.value;
+            const materia = document.getElementById('materia').value;
+            const dalle = document.getElementById('dalle').value;
+            const alle = document.getElementById('alle').value;
+            const classe = document.getElementById('classe').value;
+
+            if (!giorno || !materia || !dalle || !alle || !classe) {
+                alert('Compila tutti i campi!');
+                return;
+            }
+
+            const newEntry = { giorno, materia, dalle, alle, classe };
+
+            // Salva su localStorage
+            saveToLocalStorage(newEntry);
+
+            // Aggiorna la tabella per il giorno selezionato
+            aggiornaTabella();
+
+            // Pulisci i campi
+            document.getElementById('materia').value = '';
+            document.getElementById('dalle').value = '';
+            document.getElementById('alle').value = '';
+            document.getElementById('classe').value = '';
+        }
+
+        function saveToLocalStorage(newEntry) {
+            const savedData = JSON.parse(localStorage.getItem('schedule')) || [];
+            savedData.push(newEntry);
+            localStorage.setItem('schedule', JSON.stringify(savedData));
+        }
+
+        function aggiornaTabella() {
+            const giorno = selectedDayInput.value;
+            const savedData = JSON.parse(localStorage.getItem('schedule')) || [];
+
+            // Filtra le attività per il giorno selezionato
+            const filteredData = savedData.filter(entry => entry.giorno === giorno);
+
+            // Pulisci la tabella
+            scheduleTable.innerHTML = '';
+
+            // Aggiungi le righe filtrate
+            filteredData.forEach(addRowToTable);
+        }
+
+        function addRowToTable({ giorno, materia, dalle, alle, classe }) {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${giorno}</td>
+                <td>${materia}</td>
+                <td>${dalle}</td>
+                <td>${alle}</td>
+                <td>${classe}</td>
+                <td><button onclick="rimuoviRiga(this)">Rimuovi</button></td>
+            `;
+
+            scheduleTable.appendChild(row);
+        }
+
+        function rimuoviRiga(button) {
+            const row = button.parentElement.parentElement;
+            const giorno = row.children[0].textContent;
+            const materia = row.children[1].textContent;
+
+            // Rimuovi dalla tabella
+            row.remove();
+
+            // Aggiorna il localStorage
+            let savedData = JSON.parse(localStorage.getItem('schedule')) || [];
+            savedData = savedData.filter(entry => !(entry.giorno === giorno && entry.materia === materia));
+            localStorage.setItem('schedule', JSON.stringify(savedData));
+
+            // Aggiorna la tabella
+            aggiornaTabella();
+        }
+    </script>
+</body>
+</html>

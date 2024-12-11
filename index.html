@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -87,7 +88,7 @@
             const password = document.getElementById('password').value;
             if ((username === 'admin' || username === 'enrico.dematteis') && password === 'cfp.2024') {
                 const area = localStorage.getItem('area');
-                window.location.href = ${area}.html?user=${username};
+                window.location.href = `${area}.html?user=${username}`;
             } else {
                 alert('Credenziali errate');
             }

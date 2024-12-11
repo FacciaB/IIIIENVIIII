@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sondaggi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0;
+            color: white;
+            background-color: pink;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #ff99cc;
+        }
+        .btn-create {
+            background-color: violet;
+        }
+        .btn-create:hover {
+            background-color: #c71585;
+        }
+        .hidden {
+            display: none;
+        }
+        .form-section {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Sondaggi</h1>
+<button class="btn" id="newCommunicationBtn">Nuova Comunicazione</button>
+
+<div id="formContainer" class="hidden">
+    <div class="form-section">
+        <label for="classSelect">Seleziona classe:</label>
+        <select id="classSelect">
+            <option value="">--Scegli una classe--</option>
+            <option value="OBI-04-2023">OBI-04-2023</option>
+            <option value="OBI-04-2025">OBI-04-2025</option>
+        </select>
+    </div>
+
+    <div class="form-section hidden" id="studentContainer">
+        <label for="studentSelect">Seleziona studente:</label>
+        <select id="studentSelect">
+            <option value="">--Scegli uno studente--</option>
+        </select>
+    </div>
+
+    <div class="form-section hidden" id="actionContainer">
+        <label for="actionSelect">Seleziona azione:</label>
+        <select id="actionSelect">
+            <option value="">--Scegli un'azione--</option>
+            <option value="Censura">Censura</option>
+            <option value="Ammonizione">Ammonizione</option>
+        </select>
+    </div>
+
+    <div class="form-section hidden" id="reasonContainer">
+        <label for="reason">Motivazione:</label>
+        <textarea id="reason" rows="4" cols="50"></textarea>
+    </div>
+
+    <button class="btn btn-create hidden" id="createBtn">Crea</button>
+</div>
+
+<table id="resultTable">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Allievo</th>
+            <th>Azione</th>
+            <th>Motivazione</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    const newCommunicationBtn = document.getElementById('newCommunicationBtn');
+    const formContainer = document.getElementById('formContainer');
+    const classSelect = document.getElementById('classSelect');
+    const studentContainer = document.getElementById('studentContainer');
+    const studentSelect = document.getElementById('studentSelect');
+    const actionContainer = document.getElementById('actionContainer');
+    const actionSelect = document.getElementById('actionSelect');
+    const reasonContainer = document.getElementById('reasonContainer');
+    const reason = document.getElementById('reason');
+    const createBtn = document.getElementById('createBtn');
+    const resultTable = document.getElementById('resultTable').querySelector('tbody');
+
+    const studentsByClass = {
+        "OBI-04-2023": [
+            "Cane Dematteis", "Cane Benua", "Mician Dematteis", "Cicciobello Allabue", "Micheal Temperini",
+            "Cattivo Temperini", "Bambola Rossetti", "Teschio Carottini", "Robottina Carottini"
+        ],
+        "OBI-04-2025": [
+            "Stellina Dematteis", "Tartaruga Dematteis", "Yucky Benua", "Lollo Benua", "Leonard Benua",
+            "Sparcky Benua", "Flaffy Dematteis", "Tina Dematteis", "Grigetta Benua", "Luna Dematteis",
+            "Luna Benua", "Kendy Dematteis", "Papero Benua", "Curt Dematteis", "Briciola Dematteis",
+            "Lampo Benua", "Sunny Benua", "Attiglio Dematteis", "Pandino Dematteis"
+        ]
+    };
+
+    newCommunicationBtn.addEventListener('click', () => {
+        formContainer.classList.remove('hidden');
+    });
+
+    classSelect.addEventListener('change', () => {
+        const selectedClass = classSelect.value;
+        studentSelect.innerHTML = '<option value="">--Scegli uno studente--</option>';
+
+        if (selectedClass && studentsByClass[selectedClass]) {
+            studentsByClass[selectedClass].forEach(student => {
+                const option = document.createElement('option');
+                option.value = student;
+                option.textContent = student;
+                studentSelect.appendChild(option);
+            });
+            studentContainer.classList.remove('hidden');
+        } else {
+            studentContainer.classList.add('hidden');
+        }
+
+        actionContainer.classList.add('hidden');
+        reasonContainer.classList.add('hidden');
+        createBtn.classList.add('hidden');
+    });
+
+    studentSelect.addEventListener('change', () => {
+        if (studentSelect.value) {
+            actionContainer.classList.remove('hidden');
+        } else {
+            actionContainer.classList.add('hidden');
+        }
+        reasonContainer.classList.add('hidden');
+        createBtn.classList.add('hidden');
+    });
+
+    actionSelect.addEventListener('change', () => {
+        if (actionSelect.value) {
+            reasonContainer.classList.remove('hidden');
+            createBtn.classList.remove('hidden');
+        } else {
+            reasonContainer.classList.add('hidden');
+            createBtn.classList.add('hidden');
+        }
+    });
+
+    createBtn.addEventListener('click', () => {
+        const selectedStudent = studentSelect.value;
+        const selectedAction = actionSelect.value;
+        const motivation = reason.value.trim();
+
+        if (selectedStudent && selectedAction && motivation) {
+            const row = document.createElement('tr');
+
+            const indexCell = document.createElement('td');
+            indexCell.textContent = resultTable.children.length + 1;
+            row.appendChild(indexCell);
+
+            const studentCell = document.createElement('td');
+            studentCell.textContent = selectedStudent;
+            row.appendChild(studentCell);
+
+            const actionCell = document.createElement('td');
+            actionCell.textContent = selectedAction;
+            row.appendChild(actionCell);
+
+            const reasonCell = document.createElement('td');
+            reasonCell.textContent = motivation;
+            row.appendChild(reasonCell);
+
+            resultTable.appendChild(row);
+
+            // Reset form
+            formContainer.classList.add('hidden');
+            classSelect.value = "";
+            studentSelect.innerHTML = '<option value="">--Scegli uno studente--</option>';
+            studentContainer.classList.add('hidden');
+            actionContainer.classList.add('hidden');
+            reasonContainer.classList.add('hidden');
+            createBtn.classList.add('hidden');
+            reason.value = "";
+        } else {
+            alert('Per favore, completa tutti i campi.');
+        }
+    });
+</script>
+
+</body>
+</html>

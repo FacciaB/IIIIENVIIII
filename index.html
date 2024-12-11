@@ -61,9 +61,9 @@
 
     <div id="popup" class="popup">
         <h2>Seleziona area</h2>
-        <button class="button" onclick="login('area_docenti')">Area Docenti</button>
-        <button class="button" onclick="login('area_studenti')">Area Studenti</button>
-        <button class="button" onclick="login('area_genitori')">Area Genitori</button>
+        <button class="button" onclick="selectArea('area_docenti')">Area Docenti</button>
+        <button class="button" onclick="selectArea('area_studenti')">Area Studenti</button>
+        <button class="button" onclick="selectArea('area_genitori')">Area Genitori</button>
         <br>
         <label for="username">Nome utente:</label><br>
         <input type="text" id="username" placeholder="admin, enrico.dematteis">
@@ -79,16 +79,25 @@
             document.getElementById('popup').style.display = 'block';
         }
 
-        function login(area) {
-            localStorage.setItem('area', area);
+        function selectArea(area) {
+            localStorage.setItem('selectedArea', area);
         }
 
         function submitLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const area = localStorage.getItem('selectedArea');
+
+            if (!area) {
+                alert('Seleziona un'area prima di procedere.');
+                return;
+            }
+
             if ((username === 'admin' || username === 'enrico.dematteis') && password === 'cfp.2024') {
-                const area = localStorage.getItem('area');
-                window.location.href = `${area}.html?user=${username}`;
+                alert(`Accesso effettuato con successo: ${username} - ${area}`);
+                document.getElementById('popup').style.display = 'none';
+                // Puoi anche reindirizzare a un'altra pagina qui
+                // window.location.href = `${area}.html?user=${username}`;
             } else {
                 alert('Credenziali errate');
             }

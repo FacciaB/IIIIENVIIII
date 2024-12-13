@@ -125,6 +125,42 @@
         ]
     };
 
+    function saveTableData() {
+        const rows = Array.from(resultTable.children).map(row => {
+            return {
+                student: row.children[1].textContent,
+                action: row.children[2].textContent,
+                reason: row.children[3].textContent
+            };
+        });
+        localStorage.setItem('tableData', JSON.stringify(rows));
+    }
+
+    function loadTableData() {
+        const savedData = JSON.parse(localStorage.getItem('tableData')) || [];
+        savedData.forEach((item, index) => {
+            const row = document.createElement('tr');
+
+            const indexCell = document.createElement('td');
+            indexCell.textContent = index + 1;
+            row.appendChild(indexCell);
+
+            const studentCell = document.createElement('td');
+            studentCell.textContent = item.student;
+            row.appendChild(studentCell);
+
+            const actionCell = document.createElement('td');
+            actionCell.textContent = item.action;
+            row.appendChild(actionCell);
+
+            const reasonCell = document.createElement('td');
+            reasonCell.textContent = item.reason;
+            row.appendChild(reasonCell);
+
+            resultTable.appendChild(row);
+        });
+    }
+
     newCommunicationBtn.addEventListener('click', () => {
         formContainer.classList.remove('hidden');
     });
@@ -196,6 +232,8 @@
 
             resultTable.appendChild(row);
 
+            saveTableData();
+
             // Reset form
             formContainer.classList.add('hidden');
             classSelect.value = "";
@@ -209,6 +247,9 @@
             alert('Per favore, completa tutti i campi.');
         }
     });
+
+    // Load saved table data on page load
+    loadTableData();
 </script>
 
 </body>

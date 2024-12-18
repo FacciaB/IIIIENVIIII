@@ -125,6 +125,8 @@
         ]
     };
 
+    const studentCensures = {};
+
     function saveTableData() {
         const rows = Array.from(resultTable.children).map(row => {
             return {
@@ -231,6 +233,34 @@
             row.appendChild(reasonCell);
 
             resultTable.appendChild(row);
+
+            // Gestione censura e ammonizione
+            if (selectedAction === 'Censura') {
+                studentCensures[selectedStudent] = (studentCensures[selectedStudent] || 0) + 1;
+
+                if (studentCensures[selectedStudent] === 3) {
+                    studentCensures[selectedStudent] = 0; // Resetta il conteggio delle censure
+                    const warningRow = document.createElement('tr');
+
+                    const warningIndexCell = document.createElement('td');
+                    warningIndexCell.textContent = resultTable.children.length + 1;
+                    warningRow.appendChild(warningIndexCell);
+
+                    const warningStudentCell = document.createElement('td');
+                    warningStudentCell.textContent = selectedStudent;
+                    warningRow.appendChild(warningStudentCell);
+
+                    const warningActionCell = document.createElement('td');
+                    warningActionCell.textContent = 'Ammonizione';
+                    warningRow.appendChild(warningActionCell);
+
+                    const warningReasonCell = document.createElement('td');
+                    warningReasonCell.textContent = 'Assegnata automaticamente per 3 censure.';
+                    warningRow.appendChild(warningReasonCell);
+
+                    resultTable.appendChild(warningRow);
+                }
+            }
 
             saveTableData();
 

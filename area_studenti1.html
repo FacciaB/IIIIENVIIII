@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area Studenti</title>
+    <style>
+        /* Stili comuni */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+        .header {
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+            margin: 20px 0;
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+        .login-box img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+        }
+        .login-box h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .login-box button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .login-box button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        CFP CEBANO MONREGALESE
+    </div>
+    <div class="login-container">
+        <div class="login-box">
+                <img src="data:image/png;base64,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" alt="Area Studenti">
+            <h2>Area Studenti</h2>
+            <form onsubmit="return validateLogin()">
+                <input type="text" id="username" placeholder="Identificativo" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Connettersi</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        function validateLogin() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            if (username === "admin" && password === "cfp.2024") {
+                // Reindirizza a area_docenti.html
+                window.location.href = "area_docenti.html";
+                return false; // Interrompe il submit standard del form
+            } else {
+                alert("Nome utente o password non corretti.");
+                return false; // Blocca l'invio del modulo
+            }
+        }
+    </script>
+</body>
+</html>

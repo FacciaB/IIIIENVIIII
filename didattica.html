@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Assenze</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: auto; }
+        .box { background: #d4edfc; padding: 15px; border-radius: 10px; margin-top: 10px; }
+        .assenza { background: #f8d7da; padding: 10px; margin-top: 5px; border-radius: 5px; }
+        .giustificata { background: #d4edda !important; }
+        .btn { padding: 5px 10px; margin-top: 5px; cursor: pointer; }
+    </style>
+</head>
+<body onload="caricaDati()">
+    <div class="container">
+        <h2>Seleziona Studente</h2>
+        <select id="studenti" onchange="caricaDati()">
+            <option value="">-- Seleziona uno studente --</option>
+            <option>Stellina Dematteis</option>
+            <option>Tartaruga Dematteis</option>
+            <option>Yucky Benua</option>
+            <option>Lollo Benua</option>
+            <option>Leonard Benua</option>
+            <option>Sparcky Benua</option>
+            <option>Flaffy Dematteis</option>
+            <option>Tina Dematteis</option>
+            <option>Grigetta Benua</option>
+            <option>Luna Dematteis</option>
+            <option>Luna Benua</option>
+            <option>Kendy Dematteis</option>
+            <option>Papero Benua</option>
+            <option>Curt Dematteis</option>
+            <option>Briciola Dematteis</option>
+            <option>Lampo Benua</option>
+            <option>Sunny Benua</option>
+            <option>Attiglio Dematteis</option>
+            <option>Pandino Dematteis</option>
+            <option>Cane Dematteis</option>
+            <option>Cane Benua</option>
+            <option>Mician Dematteis</option>
+            <option>Cicciobello Allabue</option>
+            <option>Micheal Temperini</option>
+            <option>Cattivo Temperini</option>
+            <option>Bambola Rossetti</option>
+            <option>Teschio Carottini</option>
+        </select>
+
+        <h2>Attività Perse</h2>
+        <div class="box">
+            <b>Attività perse</b>
+            <p>Da giustificare: <span id="da_giustificare">0</span> (<span id="ore_da_giustificare">0</span> ore)</p>
+            <p>Giustificate: <span id="giustificate">0</span> (<span id="ore_giustificate">0</span> ore)</p>
+        </div>
+
+        <h2>Creazione Assenza</h2>
+        <label>Data Inizio: <input type="date" id="data_inizio"></label><br>
+        <label>Data Fine: <input type="date" id="data_fine"></label><br>
+        <label>Ore Totali Perse: <input type="number" id="ore_perse"></label><br>
+        <button class="btn" onclick="creaAssenza()">Crea Assenza</button>
+
+        <h2>Assenze Registrate</h2>
+        <div id="assenze_lista"></div>
+    </div>
+
+    <script>
+        function salvaDati() {
+            let studente = document.getElementById("studenti").value;
+            if (!studente) return;
+
+            // Salva lo stato delle assenze
+            let assenze = [];
+            document.querySelectorAll("#assenze_lista .assenza").forEach(assenza => {
+                assenze.push({
+                    html: assenza.innerHTML,
+                    giustificata: assenza.classList.contains("giustificata")
+                });
+            });
+
+            localStorage.setItem("assenze_" + studente, JSON.stringify(assenze));
+            localStorage.setItem("da_giustificare_" + studente, document.getElementById("da_giustificare").textContent);
+            localStorage.setItem("ore_da_giustificare_" + studente, document.getElementById("ore_da_giustificare").textContent);
+            localStorage.setItem("giustificate_" + studente, document.getElementById("giustificate").textContent);
+            localStorage.setItem("ore_giustificate_" + studente, document.getElementById("ore_giustificate").textContent);
+        }
+
+        function caricaDati() {
+            let studente = document.getElementById("studenti").value;
+            if (!studente) return;
+
+            // Carica lo stato delle assenze
+            let assenze = JSON.parse(localStorage.getItem("assenze_" + studente)) || [];
+            let assenzeLista = document.getElementById("assenze_lista");
+            assenzeLista.innerHTML = "";
+
+            assenze.forEach(assenza => {
+                let div = document.createElement("div");
+                div.className = "assenza" + (assenza.giustificata ? " giustificata" : "");
+                div.innerHTML = assenza.html;
+                assenzeLista.appendChild(div);
+            });
+
+            // Carica i conteggi
+            document.getElementById("da_giustificare").textContent = localStorage.getItem("da_giustificare_" + studente) || "0";
+            document.getElementById("ore_da_giustificare").textContent = localStorage.getItem("ore_da_giustificare_" + studente) || "0";
+            document.getElementById("giustificate").textContent = localStorage.getItem("giustificate_" + studente) || "0";
+            document.getElementById("ore_giustificate").textContent = localStorage.getItem("ore_giustificate_" + studente) || "0";
+        }
+
+        function creaAssenza() {
+            let studente = document.getElementById("studenti").value;
+            if (!studente) {
+                alert("Seleziona uno studente!");
+                return;
+            }
+            let dataInizio = document.getElementById("data_inizio").value;
+            let dataFine = document.getElementById("data_fine").value;
+            let orePerse = parseInt(document.getElementById("ore_perse").value);
+            
+            if (!dataInizio || !dataFine || !orePerse) {
+                alert("Compila tutti i campi!");
+                return;
+            }
+
+            let assenza = document.createElement("div");
+            assenza.className = "assenza";
+            assenza.innerHTML = `<b>${studente}</b>: Dal ${dataInizio} al ${dataFine} (${orePerse}h) <span class="status">[Da giustificare (${orePerse}h)]</span> <button class="btn" onclick="giustificaAssenza(this, ${orePerse})">Giustifica</button>`;
+            document.getElementById("assenze_lista").appendChild(assenza);
+            salvaDati();
+            
+            let da_giustificare = document.getElementById("da_giustificare");
+            let ore_da_giustificare = document.getElementById("ore_da_giustificare");
+
+            da_giustificare.textContent = parseInt(da_giustificare.textContent) + 1;
+            ore_da_giustificare.textContent = parseInt(ore_da_giustificare.textContent) + orePerse;
+        }
+
+        function giustificaAssenza(button, orePerse) {
+            let assenza = button.parentElement;
+            assenza.classList.add("giustificata");
+            assenza.querySelector(".status").textContent = `[Giustificata (${orePerse}h)]`;
+            button.remove();
+            salvaDati();
+
+            let da_giustificare = document.getElementById("da_giustificare");
+            let ore_da_giustificare = document.getElementById("ore_da_giustificare");
+            let giustificate = document.getElementById("giustificate");
+            let ore_giustificate = document.getElementById("ore_giustificate");
+
+            da_giustificare.textContent = parseInt(da_giustificare.textContent) - 1;
+            ore_da_giustificare.textContent = parseInt(ore_da_giustificare.textContent) - orePerse;
+            giustificate.textContent = parseInt(giustificate.textContent) + 1;
+            ore_giustificate.textContent = parseInt(ore_giustificate.textContent) + orePerse;
+        }
+    </script>
+</body>
+</html>

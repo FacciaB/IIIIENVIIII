@@ -11,6 +11,7 @@
         .assenza { background: #f8d7da; padding: 10px; margin-top: 5px; border-radius: 5px; }
         .giustificata { background: #d4edda !important; }
         .btn { padding: 5px 10px; margin-top: 5px; cursor: pointer; }
+        .btn-reset { background: #ff4d4d; color: white; border: none; }
     </style>
 </head>
 <body onload="caricaDati()">
@@ -62,6 +63,9 @@
 
         <h2>Assenze Registrate</h2>
         <div id="assenze_lista"></div>
+
+        <!-- Pulsante Reset -->
+        <button class="btn btn-reset" onclick="resettaTutto()">Reset Tutto</button>
     </div>
 
     <script>
@@ -152,6 +156,28 @@
             ore_da_giustificare.textContent = parseInt(ore_da_giustificare.textContent) - orePerse;
             giustificate.textContent = parseInt(giustificate.textContent) + 1;
             ore_giustificate.textContent = parseInt(ore_giustificate.textContent) + orePerse;
+        }
+
+        // Funzione per resettare tutto
+        function resettaTutto() {
+            let studente = document.getElementById("studenti").value;
+            if (!studente) {
+                alert("Seleziona uno studente!");
+                return;
+            }
+
+            // Conferma prima di resettare
+            if (confirm("Sei sicuro di voler resettare tutto? Questa azione è irreversibile!")) {
+                // Rimuovi i dati dal localStorage
+                localStorage.removeItem("assenze_" + studente);
+                localStorage.removeItem("da_giustificare_" + studente);
+                localStorage.removeItem("ore_da_giustificare_" + studente);
+                localStorage.removeItem("giustificate_" + studente);
+                localStorage.removeItem("ore_giustificate_" + studente);
+
+                // Ricarica la pagina per visualizzare lo stato iniziale
+                location.reload();
+            }
         }
     </script>
 </body>

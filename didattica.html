@@ -11,7 +11,7 @@
         .assenza { background: #f8d7da; padding: 10px; margin-top: 5px; border-radius: 5px; }
         .giustificata { background: #d4edda !important; }
         .btn { padding: 5px 10px; margin-top: 5px; cursor: pointer; }
-        .btn-reset { background: #ff4d4d; color: white; border: none; }
+        .reset-btn { background: #ff4444; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body onload="caricaDati()">
@@ -64,8 +64,8 @@
         <h2>Assenze Registrate</h2>
         <div id="assenze_lista"></div>
 
-        <!-- Pulsante Reset -->
-        <button class="btn btn-reset" onclick="resettaTutto()">Reset Tutto</button>
+        <!-- Aggiungi il pulsante per resettare le assenze -->
+        <button class="reset-btn" onclick="resettaAssenze()">Resetta Tutte le Assenze</button>
     </div>
 
     <script>
@@ -158,8 +158,7 @@
             ore_giustificate.textContent = parseInt(ore_giustificate.textContent) + orePerse;
         }
 
-        // Funzione per resettare tutto
-        function resettaTutto() {
+        function resettaAssenze() {
             let studente = document.getElementById("studenti").value;
             if (!studente) {
                 alert("Seleziona uno studente!");
@@ -167,16 +166,22 @@
             }
 
             // Conferma prima di resettare
-            if (confirm("Sei sicuro di voler resettare tutto? Questa azione è irreversibile!")) {
-                // Rimuovi i dati dal localStorage
+            if (confirm("Sei sicuro di voler resettare tutte le assenze per " + studente + "?")) {
+                // Cancella i dati dal localStorage
                 localStorage.removeItem("assenze_" + studente);
                 localStorage.removeItem("da_giustificare_" + studente);
                 localStorage.removeItem("ore_da_giustificare_" + studente);
                 localStorage.removeItem("giustificate_" + studente);
                 localStorage.removeItem("ore_giustificate_" + studente);
 
-                // Ricarica la pagina per visualizzare lo stato iniziale
-                location.reload();
+                // Resetta i valori visualizzati
+                document.getElementById("da_giustificare").textContent = "0";
+                document.getElementById("ore_da_giustificare").textContent = "0";
+                document.getElementById("giustificate").textContent = "0";
+                document.getElementById("ore_giustificate").textContent = "0";
+                document.getElementById("assenze_lista").innerHTML = "";
+
+                alert("Assenze resetate con successo!");
             }
         }
     </script>

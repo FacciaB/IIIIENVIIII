@@ -56,15 +56,10 @@
       margin-top: 10px;
       padding: 8px 16px;
     }
-    #summary-link {
-      float: right;
-      font-size: 24px;
-      text-decoration: none;
-    }
   </style>
 </head>
 <body>
-  
+
   <label for="class-select">Classe:</label>
   <select id="class-select">
     <option value="terza">3ª media</option>
@@ -77,7 +72,6 @@
   <button id="add-lesson">+</button>
 
   <div id="schedule"></div>
-
   <div id="student-list"></div>
 
   <script>
@@ -143,10 +137,15 @@
 
     function openAppello(lezione) {
       const key = `${lezione.classe}_${lezione.data}_${lezione.inizio}_${lezione.docente}_${lezione.materia}`;
-      studentList.innerHTML = `<h2>Appello - ${lezione.materia} con ${lezione.docente}</h2>`;
+      studentList.innerHTML = `<h2>Appello - ${lezione.materia} con ${lezione.docente} (${lezione.classe === "prima" ? "1ª superiore" : "3ª media"})</h2>`;
 
       const list = document.createElement("div");
       const stati = presenze[key] || {};
+
+      if (!students[lezione.classe]) {
+        alert("Classe non trovata!");
+        return;
+      }
 
       students[lezione.classe].forEach(nome => {
         const div = document.createElement("div");
